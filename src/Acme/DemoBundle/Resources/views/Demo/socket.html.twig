@@ -1,0 +1,40 @@
+{% extends 'AcmeDemoBundle::layout.html.twig' %}
+{% block title "Symfony - Socket" %}
+{% block content_header '' %}
+{% block head %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+
+var conn = new WebSocket('ws://local.ratchet.com:8081');
+conn.onopen = function(e) {
+    console.log("Websocket activated!");
+    $('.connected').html('Plugged in!');
+};
+
+conn.onmessage = function(e) {
+	console.log("WS: Message:");
+    console.log(e);
+    var timeStamp = new Date(e.timeStamp);
+    var time = timeStamp.getHours() + ':' + timeStamp.getMinutes();
+    var spanTime ='<span class="chat-time">	' + time + '</span>';
+    $('#chat').before($('<p>' + spanTime + e.data + '</p>'));
+};
+
+$(function() {
+	$('#chat').keypress(function (e) {
+		// on key RETURN
+		if (e.which == 13) {
+			conn.send(this.value);
+			$(this).val('');
+		}
+	});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Websocket Test  <span class="connected"></span></h1>
+
+<input type="text" id="chat"/>
+
+{% endblock %}
