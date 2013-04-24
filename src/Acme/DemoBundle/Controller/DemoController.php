@@ -50,17 +50,19 @@ class DemoController extends Controller
         /**
          * Redis pubsub
          */
-
         $request = $this->get('request');
         if ($request->isMethod('POST')) {
 
             if ($request->request->get('pub') && $request->request->get('channel')) {
                 $channel = $request->request->get('channel');
                 $payload = $request->request->get('pub');
+                
+                $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
+                $json = json_encode($data);
 
                 $pr = new PredisHelper();
-                $pr->publish($channel, $payload);
-                
+                $pr->publish($channel, $json);
+
                 return new Response(sprintf('Published %s to %s', $payload, $channel));
             }
             

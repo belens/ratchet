@@ -59,6 +59,8 @@ subscribe_to = function (chan) {
  		console.log("ab: channel: " + channel + " event: " + event);
  		add_response(event);
  		notify("Message: " + event, 'info');
+
+
  	});
  	console.log("ab: subscribed to: " + chan);
  	notify("Subscribed to channel " + chan, 'success');
@@ -72,9 +74,9 @@ unsubscribe = function(channel) {
 	notify('Unsubscribed from channel ' + channel, 'warning')
 }
 
-publish = function(channel, message) {
-	sess.publish(channel, message);
-}
+// publish = function(channel, message) {
+// 	sess.publish(channel, message);
+// }
 
 redis_publish = function(message) {
 	$.post('{{ path('_demo_pubsub') }}', {"pub": message, "channel":get_channel()}, function (data) {
@@ -114,6 +116,7 @@ notify = function (message, type) {
 }
 
 add_response = function (text, target) {
+	console.log("--" + target);
 	if (!target) {
 		target = '#response'
 	}
@@ -122,14 +125,6 @@ add_response = function (text, target) {
 		return text + "\n" + val;
 	});
 }
-
-// publish to connected websockets
-$('#pub').keypress(function (e) {
-	if (e.which == KEY_RETURN) {
-		publish(get_channel(), this.value);
-		$(this).val('');
-	}
-});
 
 // subscribe to a channel
 $('#sub').keypress(function (e) {
@@ -154,7 +149,7 @@ $('#redispub').keypress(function (e) {
 	}
 });
 
-// unsubscribe to channel
+// debug stream
 $('#debug').click(function () {
 	if (!debug) {
 		sess.subscribe('debug', function (channel, event) {
@@ -179,28 +174,20 @@ $('#debug').click(function () {
 
 {% block content %}
 <div class="container">
-
 	<div class="row">
-
 		<div class="span12">
-
 			<h3>Notifications:</h3>
-
-			<p id="notify">&nbsp;</p>
-
+			<span style="display: block; width: 90%;" id="notify"></span>
 		</div>
-
 	</div>
 
 	<div class="row">
 
 		<div class="span6">
 
-			<h3>Operations:</h3>
-
 			<form class="form-horizontal">
 				<div class="control-group">
-					<label class="control-label" for="channels">Active channel:</label>
+					<label class="control-label" for="channels">Active card:</label>
 					<div class="controls">
 						<select class="channels"></select>
 					</div>
@@ -218,13 +205,7 @@ $('#debug').click(function () {
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="pub">Publish through websocket:</label>
-					<div class="controls">
-						<input type="text" id="pub" placeholder="">
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label" for="redispub">Publish through Redis:</label>
+					<label class="control-label" for="redispub">Publish</label>
 					<div class="controls">
 						<input type="text" id="redispub" placeholder="">
 					</div>

@@ -55,6 +55,7 @@ class Pusher implements WampServerInterface {
      */
     public function pubsub($event, $pubsub) {
         $this->log("pubsub");
+        print_r($event);
         $this->log("kind: $event->kind channel: $event->channel payload: $event->payload");
 
         if (!array_key_exists($event->channel, $this->subscribedTopics)) {
@@ -93,6 +94,7 @@ class Pusher implements WampServerInterface {
     }
 
     public function onPublish(ConnectionInterface $conn, $topic, $event, array $exclude, array $eligible) {
+        //only used with websockets, not Redis
         $this->log("onPublish");
         $topic->broadcast("$topic: $event");
     }
