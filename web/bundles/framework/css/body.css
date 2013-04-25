@@ -160,3 +160,19 @@ build: 56
     font-weight: bold;
     margin-right: 20px;
 }
+.debug-wrapper input, .debug-wrapper > div {
+    display: none;
+}
+.debug-wrapper label h3:before{
+    content: ' [+] ';
+    
+
+}
+.debug-wrapper > #check:checked ~ label h3:before{
+    content: ' [-] ';
+}
+#check:checked ~ .debug {
+
+display: block;
+
+}

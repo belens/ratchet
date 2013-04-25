@@ -55,13 +55,13 @@ subscribe_to = function (chan) {
 	if (!add_channel(chan)) {
 		return false;
 	}
+
 	sess.subscribe(chan, function (channel, event) {
  		console.log("ab: channel: " + channel + " event: " + event);
  		add_response(event);
  		notify("Message: " + event, 'info');
-
-
  	});
+
  	console.log("ab: subscribed to: " + chan);
  	notify("Subscribed to channel " + chan, 'success');
  	return true;
@@ -111,7 +111,7 @@ get_channel = function () {
 
 notify = function (message, type) {
 	n = $('#notify')
-	n.stop().text(message).css({opacity: 1}).removeClass().addClass('alert alert-' + type)
+	n.stop().text(message).css({opacity: 1}).removeClass().addClass('input-block-level alert alert-' + type)
 	n.delay(1000).fadeTo(2000, 0.3)
 }
 
@@ -124,6 +124,10 @@ add_response = function (text, target) {
 	$(target).val(function (i, val) {
 		return text + "\n" + val;
 	});
+}
+get_card = function (){
+
+	return $('select.channels').val().split(':')[1];
 }
 
 // subscribe to a channel
@@ -148,7 +152,21 @@ $('#redispub').keypress(function (e) {
 		$(this).val('');
 	}
 });
-
+$('#chatSend').keypress(function (e) {
+	if (e.which == KEY_RETURN) {
+		redis_publish(this.value);
+		$(this).val('');
+	}
+});
+$('select.channels').change(function(){
+	var channel = $('select.channels').val();
+	var chatChannel = 'chat:' + get_card();
+	sess.subscribe(chatChannel, function (channel, event) {
+		add_response(event, '#chat');
+	});
+	console.log("ab: subscribed to "+ chatChannel  + " channel");
+	notify("Subscribed to chat channel", 'success');	
+});
 // debug stream
 $('#debug').click(function () {
 	if (!debug) {
@@ -177,7 +195,7 @@ $('#debug').click(function () {
 	<div class="row">
 		<div class="span12">
 			<h3>Notifications:</h3>
-			<span style="display: block; width: 90%;" id="notify"></span>
+			<span class="input-block-level" id="notify"></span>
 		</div>
 	</div>
 
@@ -213,20 +231,32 @@ $('#debug').click(function () {
 				<div class="control-group">
 					<label class="control-label" for="response"><strong>Response:</strong></label>
 					<div class="controls">
-						<textarea id="response" rows="10"></textarea>
+						<textarea disabled id="response" rows="10"></textarea>
 					</div>
 				</div>
 			</form>
 
 		</div>
-
-		<div class="span6 debug">
-			<h3>Debug:</h3>
-			<p><button class="btn btn-primary" type="button" id="debug">Enable</button></p>
-			<p><textarea id="debug-output" rows="20" class="span6"></textarea></p>
+		<div class="span6">
+			<textarea disabled name="chat" id="chat" cols="30" rows="10" class="input-block-level"></textarea>
+			<input type="text" name="chatSend" id="chatSend" class="input-block-level"/>
 		</div>
-
 	</div>
+</div>
 
+{% endblock %}
+{% block footer %}
+<div class="container">
+	<div class="row">
+	<div class="span12 well debug-wrapper" style="padding: 19px;margin-bottom: 20px;">
+		
+		<input type="checkbox" name="check" id="check">
+		<label for="check"> <h3>Debug</h3></label>
+		<div class="debug">
+			<p><button class="btn btn-primary" type="button" id="debug">Enable</button></p>
+			<p><textarea id="debug-output" rows="20" class="input-block-level"></textarea></p>
+		</div>
+	</div>
+</div>
 </div>
 {% endblock %}

@@ -7,10 +7,11 @@ require __DIR__ . '/../vendor/autoload.php';
 $loop   = React\EventLoop\Factory::create();
 $pusher = new Pusher();
 
+//Unix timestamp
 $loop->addPeriodicTimer(10, array($pusher, 'timedCallback'));
 
-$client = new Predis\Async\Client('tcp://127.0.0.1:6379', $loop);
-$client->connect(array($pusher, 'init'));
+$connection = new Predis\Async\Client('tcp://127.0.0.1:6379', $loop);
+$connection->connect(array($pusher, 'init'));
 
 // Set up our WebSocket server for clients wanting real-time updates
 $webSock = new React\Socket\Server($loop);

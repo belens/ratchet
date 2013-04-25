@@ -25,10 +25,10 @@
         <div style="clear: both"></div>
     {% endblock %}
 
-    <div class="block">
+    <div class="">
         {% block content %}{% endblock %}
     </div>
-
+{% block footer %}{% endblock %}
     {% if code is defined %}
         <h2>Code behind this page</h2>
         <div class="block">

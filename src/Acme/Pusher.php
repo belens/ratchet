@@ -7,23 +7,25 @@ use Ratchet\Wamp\WampServerInterface;
 class Pusher implements WampServerInterface {
     
     /**
-     * A lookup of all the topics clients have subscribed to
-     */
-    public $subscribedTopics = array();
+     * A lookup of all the channels clients have subscribed to
+     **/
+    public $subscribedChannels = array();
 
     protected $redis;
 
     public function timedCallback() {
-        if (array_key_exists('debug', $this->subscribedTopics)) {
-            $topic = $this->subscribedTopics['debug'];
-            $topic->broadcast('Unix timestamp is ' . time());
+        if (array_key_exists('debug', $this->subscribedChannels)) {
+            $channel = $this->subscribedChannels['debug'];
+            $channel->broadcast('Unix timestamp is ' . time());
         }
     }
 
-    public function init($client) {
-        $this->redis = $client;
-        $this->log("Connected to Redis, now listening for incoming messages...");
+    public function init($connection) {
+        // link Predis/Async connection up with Redis
+        $this->redis = $connection;
+        $this->log("Plugged into Redis, now listening for incoming messages...");
     }
+
 
     /**
      * echo the message and also broadcast to channel 'debug'
@@ -32,21 +34,21 @@ class Pusher implements WampServerInterface {
     {
         $message = sprintf("Pusher: %s", $value);
         echo "$message\n";
-        if (array_key_exists('debug', $this->subscribedTopics)) {
-            $topic = $this->subscribedTopics['debug'];
-            $topic->broadcast($message);
+        if (array_key_exists('debug', $this->subscribedChannels)) {
+            $channel = $this->subscribedChannels['debug'];
+            $channel->broadcast($message);
         }
     }
 
-    public function onSubscribe(ConnectionInterface $conn, $topic) {
+    public function onSubscribe(ConnectionInterface $conn, $channel) {
         $this->log("onSubscribe");
         $this->log("session id {$conn->WAMP->sessionId}");
-        $this->log("topic: $topic {$topic->count()}");
-        // When a visitor subscribes to a topic link the Topic object in a  lookup array
-        if (!array_key_exists($topic->getId(), $this->subscribedTopics)) {
-            $this->subscribedTopics[$topic->getId()] = $topic;
-            $pubsubContext = $this->redis->pubsub($topic->getId(), array($this, 'pubsub'));
-            $this->log("subscribed to topic $topic");
+        $this->log("channel: $channel {$channel->count()}");
+        // When a visitor subscribes to a channel link the Channel object in a lookup array
+        if (!array_key_exists($channel->getId(), $this->subscribedChannels)) {
+            $this->subscribedChannels[$channel->getId()] = $channel;
+            $pubsubContext = $this->redis->pubsub($channel->getId(), array($this, 'pubsub'));
+            $this->log("subscribed to channel $channel");
         }
     }
 
@@ -58,14 +60,14 @@ class Pusher implements WampServerInterface {
         print_r($event);
         $this->log("kind: $event->kind channel: $event->channel payload: $event->payload");
 
-        if (!array_key_exists($event->channel, $this->subscribedTopics)) {
+        if (!array_key_exists($event->channel, $this->subscribedChannels)) {
             $this->log("no subscribers, no broadcast");
             return;
         }
 
-        $topic = $this->subscribedTopics[$event->channel];
-        $this->log("$event->channel: $event->payload {$topic->count()}");
-        $topic->broadcast("$event->channel: $event->payload");
+        $channel = $this->subscribedChannels[$event->channel];
+        $this->log("$event->channel: $event->payload {$channel->count()}");
+        $channel->broadcast("$event->channel: $event->payload");
 
         // quit if we get the message from redis
         if (strtolower(trim($event->payload)) === 'quit') {
@@ -74,9 +76,11 @@ class Pusher implements WampServerInterface {
         }
     }
 
-    public function onUnSubscribe(ConnectionInterface $conn, $topic) {
+    public function onUnSubscribe(ConnectionInterface $conn, $channel) {
         $this->log("onUnSubscribe");
-        $this->log("topic: $topic {$topic->count()}");
+        $this->log("topic: $channel {$channel->count()}");
+        $channel = $this->subscribedChannels['count'];
+        $channel->broadcast($message);        
     }
 
     public function onOpen(ConnectionInterface $conn) {
@@ -87,16 +91,16 @@ class Pusher implements WampServerInterface {
         $this->log("onClose ({$conn->WAMP->sessionId})");
     }
 
-    public function onCall(ConnectionInterface $conn, $id, $topic, array $params) {
+    public function onCall(ConnectionInterface $conn, $id, $channel, array $params) {
         // In this application if clients send data it's because the user hacked around in console
         $this->log("onCall");
-        $conn->callError($id, $topic, 'You are not allowed to make calls')->close();
+        $conn->callError($id, $channel, 'You are not allowed to make calls')->close();
     }
 
-    public function onPublish(ConnectionInterface $conn, $topic, $event, array $exclude, array $eligible) {
+    public function onPublish(ConnectionInterface $conn, $channel, $event, array $exclude, array $eligible) {
         //only used with websockets, not Redis
         $this->log("onPublish");
-        $topic->broadcast("$topic: $event");
+        $channel->broadcast("$channel: $event");
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
