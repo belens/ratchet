@@ -14,4 +14,8 @@ class PredisHelper {
 	public function publish($channel, $payload) {
 		$this->redis->publish($channel, $payload);
 	}
+
+	public function push($channel,$payload){
+		$this->redis->lpush($channel, $payload);
+	}
 }

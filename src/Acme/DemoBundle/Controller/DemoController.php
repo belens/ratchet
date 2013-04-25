@@ -62,6 +62,7 @@ class DemoController extends Controller
 
                 $pr = new PredisHelper();
                 $pr->publish($channel, $json);
+                $pr->push($channel,$json);
 
                 return new Response(sprintf('Published %s to %s', $payload, $channel));
             }
