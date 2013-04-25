@@ -66,9 +66,14 @@ class DemoController extends Controller
 
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
+
                 
-                $data = $payload; //array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
-                //$json = json_encode($data);
+                if(strpos($this->channel,'chat') !== false){
+                    $data = $payload;
+                } else {
+                    $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
+                    $data = json_encode($data);
+                }
 
                 $pr->publish($this->channel, $data);
                 $pr->push($this->channel,$data);

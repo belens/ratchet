@@ -49,6 +49,11 @@ class Pusher implements WampServerInterface {
             $this->subscribedChannels[$channel->getId()] = $channel;
             $pubsubContext = $this->redis->pubsub($channel->getId(), array($this, 'pubsub'));
             $this->log("subscribed to channel $channel");
+
+            if (array_key_exists('count', $this->subscribedChannels)) {
+                $channel = $this->subscribedChannels['count'];
+                $channel->broadcast($$channel->count());
+            }
         }
     }
 
