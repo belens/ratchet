@@ -45,13 +45,14 @@ ab.connect("ws://local.ratchet.com:8081",
 on_connect = function() {
 	// initialise default channels
 	console.log("ab: subscribing to default channels");
+
+	// if you go to /pubsub/banana, this will check if there's a default banana channel, if there is not, it is added to the dropdown and it becomes the current active channel.
 	var channel = "{{ channel }}";
 	if( $.inArray(channel, defaultChannels) == -1 ){
       subscribe_to(channel);
 		add_channel(channel);
    }
 	$.each(defaultChannels, function (i, el) {
-
 		subscribe_to(el);
 		add_channel(el);
 	});
@@ -86,7 +87,7 @@ unsubscribe = function(channel) {
 
 redis_publish = function(message) {
 	$.post('{{ path('_demo_pubsub') }}', {"pub": message, "channel":get_channel()}, function (data) {
-		console.log("pubsub: ajax response: " + data);
+		console.log("pubsub: ajax response: " + data + "TEST");
 	});
 }
 redis_publish_chat = function(message) {
