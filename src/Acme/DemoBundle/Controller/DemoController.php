@@ -59,7 +59,7 @@ class DemoController extends Controller
         $this->channel = 'card:getBetter';
     }
         if ($request->request->get('channel')){
-            $channel = $request->request->get('channel');
+            $this->channel = $request->request->get('channel');
         }
         $pr = new PredisHelper();
         if ($request->isMethod('POST')) {
@@ -78,12 +78,13 @@ class DemoController extends Controller
             
             return new Response("Need pub and channel", 400);  
         }
+
         echo $this->channel;
         $messages = $pr->getAllMessagesFromChannel($this->channel);
 
         echo count($messages);
 
-        return array('channel'=>$this->channel);
+        return array('channel'=>$this->channel, 'messages'=>$messages);
     }
 
 
