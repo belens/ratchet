@@ -67,11 +67,11 @@ class DemoController extends Controller
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
                 
-                $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
-                $json = json_encode($data);
+                $data = $payload; //array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
+                //$json = json_encode($data);
 
-                $pr->publish($this->channel, $json);
-                $pr->push($this->channel,$json);
+                $pr->publish($this->channel, $data);
+                $pr->push($this->channel,$data);
 
                 return new Response(sprintf('Published %s to %s', $payload, $this->channel));
             }

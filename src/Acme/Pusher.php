@@ -79,8 +79,6 @@ class Pusher implements WampServerInterface {
     public function onUnSubscribe(ConnectionInterface $conn, $channel) {
         $this->log("onUnSubscribe");
         $this->log("topic: $channel {$channel->count()}");
-        $channel = $this->subscribedChannels['count'];
-        $channel->broadcast($message);        
     }
 
     public function onOpen(ConnectionInterface $conn) {

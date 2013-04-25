@@ -89,6 +89,11 @@ redis_publish = function(message) {
 		console.log("pubsub: ajax response: " + data);
 	});
 }
+redis_publish_chat = function(message) {
+	$.post('{{ path('_demo_pubsub') }}', {"pub": message, "channel":get_channel_chat()}, function (data) {
+		console.log("pubsub: ajax response: " + data);
+	});
+}
 
 add_channel = function (channel) {
 	if (channels.indexOf(channel) != -1) {
@@ -112,7 +117,11 @@ remove_channel = function (channel) {
 }
 
 get_channel = function () {
-	return $('select.channels').val()
+	console.log($('select.channels').val());
+	return $('select.channels').val();
+}
+get_channel_chat = function (){
+	return 'chat:' + $('select.channels').val().split(':')[1];
 }
 
 notify = function (message, type) {
@@ -131,10 +140,7 @@ add_response = function (text, target) {
 		return text + "\n" + val;
 	});
 }
-get_card = function (){
 
-	return $('select.channels').val().split(':')[1];
-}
 
 // subscribe to a channel
 $('#sub').keypress(function (e) {
@@ -158,21 +164,22 @@ $('#redispub').keypress(function (e) {
 		$(this).val('');
 	}
 });
-$('#chatSend').keypress(function (e) {
+$('#talk').keypress(function (e) {
 	if (e.which == KEY_RETURN) {
-		redis_publish(this.value);
+		redis_publish_chat(this.value);
 		$(this).val('');
 	}
 });
+
 $('select.channels').change(function(){
-	var channel = $('select.channels').val();
-	var chatChannel = 'chat:' + get_card();
+	var chatChannel = get_channel_chat();
 	sess.subscribe(chatChannel, function (channel, event) {
 		add_response(event, '#chat');
 	});
 	console.log("ab: subscribed to "+ chatChannel  + " channel");
 	notify("Subscribed to chat channel", 'success');	
 });
+
 // debug stream
 $('#debug').click(function () {
 	if (!debug) {
@@ -213,7 +220,7 @@ $('#debug').click(function () {
 				<div class="control-group">
 					<label class="control-label" for="channels">Active card:</label>
 					<div class="controls">
-						<select class="channels"></select>
+						<select class="channels input-block-level" ></select>
 					</div>
 				</div>
 				<div class="control-group">
@@ -225,27 +232,35 @@ $('#debug').click(function () {
 				<div class="control-group">
 					<label class="control-label" for="sub">Subscribe new channel:</label>
 					<div class="controls">
-						<input type="text" id="sub" placeholder="">
+						<input type="text" id="sub" class="input-block-level" >
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="redispub">Publish</label>
 					<div class="controls">
-						<input type="text" id="redispub" placeholder="">
+						<input type="text" id="redispub" class="input-block-level" >
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="response"><strong>Response:</strong></label>
 					<div class="controls">
-						<textarea disabled id="response" rows="10"></textarea>
+						<textarea disabled id="response" rows="10" class="input-block-level"></textarea>
 					</div>
 				</div>
 			</form>
 
 		</div>
 		<div class="span6">
-			<textarea disabled name="chat" id="chat" cols="30" rows="10" class="input-block-level"></textarea>
-			<input type="text" name="chatSend" id="chatSend" class="input-block-level"/>
+			<div class="control-group">
+				<div class="controls">
+					<textarea disabled name="chat" id="chat" cols="30" rows="10" class="input-block-level"></textarea>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<input type="text" name="talk" id="talk" class="input-block-level input">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
