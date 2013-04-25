@@ -45,7 +45,13 @@ ab.connect("ws://local.ratchet.com:8081",
 on_connect = function() {
 	// initialise default channels
 	console.log("ab: subscribing to default channels");
+	var channel = "{{ channel }}";
+	if( $.inArray(channel, defaultChannels) == -1 ){
+      subscribe_to(channel);
+		add_channel(channel);
+   }
 	$.each(defaultChannels, function (i, el) {
+
 		subscribe_to(el);
 		add_channel(el);
 	});

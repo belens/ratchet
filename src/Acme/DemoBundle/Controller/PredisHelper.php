@@ -18,4 +18,9 @@ class PredisHelper {
 	public function push($channel,$payload){
 		$this->redis->lpush($channel, $payload);
 	}
+
+	public function getAllMessagesFromChannel($channel){
+		$messages = $this->redis->lrange($channel,0,-1);
+		return $messages;
+	}
 }

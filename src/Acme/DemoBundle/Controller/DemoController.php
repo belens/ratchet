@@ -14,6 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class DemoController extends Controller
 {
+        private $pr;
+        private $channel;
     /**
      * @Route("/", name="_demo")
      * @Template()
@@ -51,29 +53,49 @@ class DemoController extends Controller
          * Redis pubsub
          */
         $request = $this->get('request');
+
+        //Default channel you're subscribed on TODO: make it dynamic based on url/first in list
+        if (empty($this->channel)){
+        $this->channel = 'card:getBetter';
+    }
+        if ($request->request->get('channel')){
+            $channel = $request->request->get('channel');
+        }
+        $pr = new PredisHelper();
         if ($request->isMethod('POST')) {
 
-            if ($request->request->get('pub') && $request->request->get('channel')) {
-                $channel = $request->request->get('channel');
+            if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
                 
                 $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
                 $json = json_encode($data);
 
-                $pr = new PredisHelper();
-                $pr->publish($channel, $json);
-                $pr->push($channel,$json);
+                $pr->publish($this->channel, $json);
+                $pr->push($this->channel,$json);
 
-                return new Response(sprintf('Published %s to %s', $payload, $channel));
+                return new Response(sprintf('Published %s to %s', $payload, $this->channel));
             }
             
             return new Response("Need pub and channel", 400);  
         }
+        echo $this->channel;
+        $messages = $pr->getAllMessagesFromChannel($this->channel);
+
+        echo count($messages);
+
+        return array('channel'=>$this->channel);
+    }
 
 
-
-
-       return array();
+    /**
+     * @Route("/pubsub/{channel}", name="_demo_pubsub_channel")
+     * @Template("AcmeDemoBundle:Demo:pubsub.html.twig")
+     */
+    public function pubsubWithChannelAction($channel)
+    {
+        $this->channel = $channel;
+        $this->pubsubAction();
+        return array('channel' => $channel);
     }
 
     /**
