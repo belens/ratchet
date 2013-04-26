@@ -14,8 +14,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class DemoController extends Controller
 {
-        private $pr;
-        private $channel;
+    private $pr;
+    private $channel;
+
     /**
      * @Route("/", name="_demo")
      * @Template()
@@ -23,15 +24,6 @@ class DemoController extends Controller
     public function indexAction()
     {
         return array();
-    }
-
-    /**
-     * @Route("/hello/{name}", name="_demo_hello")
-     * @Template()
-     */
-    public function helloAction($name)
-    {
-        return array('name' => $name);
     }
 
     /**
@@ -44,36 +36,40 @@ class DemoController extends Controller
     }
 
     /**
-     * @Route("/pubsub/", name="_demo_pubsub")
+     * @Route("/room/", name="_demo_room")
      * @Template()
      */
-    public function pubsubAction()
+    public function roomAction()
     {
         /**
          * Redis pubsub
          */
         $request = $this->get('request');
 
-        //Default channel you're subscribed on TODO: make it dynamic based on url/first in list
-        if (empty($this->channel)){
-        $this->channel = 'card:getBetter';
-    }
         if ($request->request->get('channel')){
             $this->channel = $request->request->get('channel');
         }
+
         $pr = new PredisHelper();
+
         if ($request->isMethod('POST')) {
 
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
 
-                
-                if(strpos($this->channel,'chat') !== false){
-                    $data = $payload;
-                } else {
-                    $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
-                    $data = json_encode($data);
-                }
+                $result = substr($this->channel, 0, strpos($this->channel, ':'));
+
+                switch ($result) {
+                    case 'chat':
+                        $data = $payload;
+                        break;
+                    case 'data':
+                        $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
+                        $data = json_encode($data);
+                        break;
+                    case 'room':
+                        break;
+                }                
 
                 $pr->publish($this->channel, $data);
                 $pr->push($this->channel,$data);
@@ -94,38 +90,13 @@ class DemoController extends Controller
 
 
     /**
-     * @Route("/pubsub/{channel}", name="_demo_pubsub_channel")
-     * @Template("AcmeDemoBundle:Demo:pubsub.html.twig")
+     * @Route("/room/{channel}", name="_demo_room_channel")
+     * @Template("AcmeDemoBundle:Demo:room.html.twig")
      */
-    public function pubsubWithChannelAction($channel)
+    public function roomWithChannelAction($channel)
     {
         $this->channel = $channel;
-        $this->pubsubAction();
+        $this->roomAction();
         return array('channel' => $channel);
-    }
-
-    /**
-     * @Route("/contact", name="_demo_contact")
-     * @Template()
-     */
-    public function contactAction()
-    {
-        $form = $this->get('form.factory')->create(new ContactType());
-
-        $request = $this->get('request');
-        if ($request->isMethod('POST')) {
-            $form->bind($request);
-            if ($form->isValid()) {
-                $mailer = $this->get('mailer');
-                // .. setup a message and send it
-                // http://symfony.com/doc/current/cookbook/email.html
-
-                $this->get('session')->getFlashBag()->set('notice', 'Message sent!');
-
-                return new RedirectResponse($this->generateUrl('_demo'));
-            }
-        }
-
-        return array('form' => $form->createView());
     }
 }
