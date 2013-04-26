@@ -207,7 +207,6 @@ $('#debug').click(function () {
 <div class="container">
 	<div class="row">
 		<div class="span12">
-			<h3>Notifications:</h3>
 			<span class="input-block-level" id="notify"></span>
 		</div>
 	</div>
@@ -215,7 +214,7 @@ $('#debug').click(function () {
 	<div class="row">
 
 		<div class="span6">
-
+			<h3>Data</h3>
 			<form class="form-horizontal">
 				<div class="control-group">
 					<label class="control-label" for="channels">Active card:</label>
@@ -229,14 +228,14 @@ $('#debug').click(function () {
 						<button class="btn btn-danger" type="button" id="unsub">Unsubscribe</button>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group" style="display: none;">
 					<label class="control-label" for="sub">Subscribe new channel:</label>
 					<div class="controls">
 						<input type="text" id="sub" class="input-block-level" >
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="redispub">Publish</label>
+					<label class="control-label" for="redispub">Stream data</label>
 					<div class="controls">
 						<input type="text" id="redispub" class="input-block-level" >
 					</div>
@@ -251,6 +250,7 @@ $('#debug').click(function () {
 
 		</div>
 		<div class="span6">
+			<h3>Chat</h3>
 			<div class="control-group">
 				<div class="controls">
 					<textarea disabled name="chat" id="chat" cols="30" rows="10" class="input-block-level"></textarea>
@@ -259,6 +259,7 @@ $('#debug').click(function () {
 			<div class="control-group">
 				<div class="controls">
 					<input type="text" name="talk" id="talk" class="input-block-level input">
+								<p>in the room: <span class="subscribers">-</span></p>
 				</div>
 			</div>
 		</div>
@@ -272,10 +273,11 @@ $('#debug').click(function () {
 	<div class="span12 well debug-wrapper" style="padding: 19px;margin-bottom: 20px;">
 		
 		<input type="checkbox" name="check" id="check">
-		<label for="check"> <h3>Debug</h3></label>
+		<label for="check"><h3>Debug</h3></label>
 		<div class="debug">
 			<p><button class="btn btn-primary" type="button" id="debug">Enable</button></p>
 			<p><textarea id="debug-output" rows="20" class="input-block-level"></textarea></p>
+
 		</div>
 	</div>
 </div>
