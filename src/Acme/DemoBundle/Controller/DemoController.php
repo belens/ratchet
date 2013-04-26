@@ -85,7 +85,7 @@ class DemoController extends Controller
         }
 
         echo $this->channel;
-        $messages = $pr->getAllMessagesFromChannel($this->channel);
+        $messages = $pr->get10LastMessagesFromChannel($this->channel);
 
         echo count($messages);
 

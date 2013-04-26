@@ -20,7 +20,12 @@ class PredisHelper {
 	}
 
 	public function getAllMessagesFromChannel($channel){
-		$messages = $this->redis->lrange($channel,0,-1);
+		$messages = $this->redis->lrange($channel,0, -1);
+		return $messages;
+	}
+
+	public function get10LastMessagesFromChannel($channel){
+		$messages = $this->redis->lrange($channel,0, 9);
 		return $messages;
 	}
 }

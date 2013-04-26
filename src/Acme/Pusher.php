@@ -44,6 +44,8 @@ class Pusher implements WampServerInterface {
         $this->log("onSubscribe");
         $this->log("session id {$conn->WAMP->sessionId}");
         $this->log("channel: $channel {$channel->count()}");
+        
+        
         // When a visitor subscribes to a channel link the Channel object in a lookup array
         if (!array_key_exists($channel->getId(), $this->subscribedChannels)) {
             $this->subscribedChannels[$channel->getId()] = $channel;
