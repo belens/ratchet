@@ -64,19 +64,7 @@ subscribe_to = function (room, channelType) {
 	if (!add_channels(chan)){
 		return false;
 	}
-	var messages = $('#messages').val();
-	var obj = $.parseJSON(messages);
-	target = '#chat';
-		$(target).val(function (i, val) {
-			return obj + "\n" + val;
-		});	
-	/*for (var j = 0; j < obj.length; j++){
-		target = '#chat';
-		$(target).val(function (i, val) {
-			return j + "\n" + val;
-		});	
-		
-	}*/
+
 
 	console.log(chan);
 	sess.subscribe(chan, function (channel, event) {
@@ -114,6 +102,20 @@ add_room = function (room) {
 	}
 	rooms.push(room);
 	$('select.rooms').append('<option>' + room + '</option>');
+
+	var messages = $('#messages').val();
+
+
+
+	// var obj = $.parseJSON(messages);
+
+	// for (var j = 0; j < obj.length; j++){
+	// 	target = '#chat';
+	// 	$(target).val(function (i, val) {
+	// 		return obj[j].message + "\n" + val;
+	// 	});	
+		
+	// }
 	return channels;
 }
 remove_room = function (room) {
@@ -155,7 +157,6 @@ add_response = function (text, channelType) {
 
 	var obj = $.parseJSON(text);
 	var target = '';
-	//text = text.split(text, ': ')[1];
 	switch (channelType) {
 		case 'data': 
 			target = '#response';
