@@ -68,6 +68,15 @@ class DemoController extends Controller
                         $data = array('channel'=>$this->channel,'message'=>$payload);
                         $data = json_encode($data);
                         break;
+                    case 'frontdesk':
+                        $numberRegex = '/^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/';
+                        if(preg_match($numberRegex,$payload)) {
+                            $data = array('channel'=>$this->channel,'total'=>$payload);
+                        } else {
+                            $data = array('channel'=>$this->channel,'subscriber'=>$payload);
+                        }                
+                        $data = json_encode($data);
+                        break;
                 }                
 
                 $pr->publish($this->channel, $data);

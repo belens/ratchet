@@ -8,6 +8,7 @@ var rooms = [];
 var channels = [];
 var debug = false;
 var username = '';
+var channelTypes = ['data','chat','frontdesk'];
 // connect to WAMP server
 console.log(ab);
 ab.connect("ws://local.ratchet.com:8081",
@@ -30,7 +31,7 @@ ab.connect("ws://local.ratchet.com:8081",
 on_connect = function() {
 	// initialise default channels
 	console.log("ab: subscribing to default channels");
-	var channelTypes = ['data','chat','frontdesk'];
+
 
 	// if you go to /pubsub/banana, this will check if there's a default banana channel, if there is not, it is added to the dropdown and it becomes the current active channel.
 	var routeRoom = $('#routeChannel').val();
@@ -46,6 +47,7 @@ on_connect = function() {
 			subscribe_to(room, channelTypes[i]);
 		};
 		add_room(room);
+		publish($('#username').val(), 'frontdesk');
 	});
 
 	$.each(roomList, function (i, room) {
@@ -74,21 +76,21 @@ subscribe_to = function (room, channelType) {
 }
 
 unsubscribe = function(channel) {
+	console.log('unsubscribed');
 	remove_channel(channel)
 	sess.unsubscribe(channel)
 	console.log("ab: unsubscribed from: " + channel)
 	notify('Unsubscribed from channel ' + channel, 'warning')
 }
 
-publish_data = function(message) {
-	$.post($('#room-post').val(), {"pub": message, "channel":get_channel('data')}, function (data) {
+publish = function(message,channelType) {
+	$.post($('#room-post').val(), {"pub": message, "channel":get_channel(channelType)}, function (data) {
 		console.log("pubsub: ajax response: " + data);
 	});
 }
-publish_chat = function(message) {
-	$.post($('#room-post').val(), {"pub": message, "channel":get_channel('chat')}, function (data) {
-		console.log("pubsub: ajax response: " + data);
-	});
+
+get_room = function () {
+	return $('select.rooms').val();
 }
 
 add_room = function (room) {
@@ -102,6 +104,7 @@ add_room = function (room) {
 remove_room = function (room) {
 	$('select.rooms option').filter(function() { return $.text([this]) === room; }).remove();
 }
+
 add_channels = function (channel) {
 	if (channels.indexOf(channel) != -1) {
 		return false;
@@ -112,19 +115,16 @@ add_channels = function (channel) {
 }
 
 remove_channel = function (channel) {
-	i = channels.indexOf(channel)
+	i = channels.indexOf(channel);
 	if (i == -1) {
 		return false
 	}
 	channels.splice(i, 1);
-	$('ul.channels li').filter(function() { return $.text([this]) === channel; }).remove();
+	$('ul.channels li').filter(function() {return $.text([this]) === channel;}).remove();
 	
 	return channels;
 }
 
-get_room = function () {
-	return $('select.rooms').val();
-}
 
 get_channel = function (channelType) {
 	return channelType + '::' + $('select.rooms').val();
@@ -139,29 +139,31 @@ notify = function (message, type) {
 add_response = function (text, channelType) {
 
 	var obj = $.parseJSON(text);
-	text = obj.message;
-	console.log(text);
 	var target = '';
 	//text = text.split(text, ': ')[1];
 	switch (channelType) {
 		case 'data': 
 			target = '#response';
 			$(target).val(function (i, val) {
-				return text + "\n" + val;
+				return obj.message + "\n" + val;
 			});				
 			break;
 		case 'chat':
 			target = '#chat';
 			$(target).val(function (i, val) {
-				return text + "\n" + val;
+				return obj.message + "\n" + val;
 			});			
 			break;
 		case 'frontdesk':
-			target = '.subscribers';
+			target = '.subscribers-total';
 			console.log('hi');
-			$(target).html(function (i, val) {
-				return text;
-			});				
+			if (obj.total != null) {
+				$(target).html(function (i, val) {
+					return obj.total;
+				});	
+			}else if (obj.subscriber != null){	
+				$('.subscribers').append('<li>' + obj.subscriber + '</li>');
+			}			
 			break;			
 		default:
 			target = '#response'
@@ -183,22 +185,26 @@ $('#sub').keypress(function (e) {
 
 // unsubscribe to channel
 $('#unsub').click(function () {
-	unsubscribe(get_channel('chat'));
-	unsubscribe(get_channel('data'));
-	remove_room(get_room());
+	$.each(defaultRooms, function (i, room) {
+		for (var i = 0; i < channelTypes.length; i++) {
+			unsubscribe(get_channel(channelTypes[i]));
+		};
+		remove_room(get_room());
+	});	
+	
 });
 
 // publish via ajax on server side
 $('#pub').keypress(function (e) {
 	if (e.which == KEY_RETURN) {
-		publish_data(this.value);
+		publish(this.value, 'data');
 		$(this).val('');
 		e.preventDefault();
 	}
 });
 $('#talk').keypress(function (e) {
 	if (e.which == KEY_RETURN) {
-		publish_chat($('#username').val() + ': ' + this.value);
+		publish($('#username').val() + ': ' + this.value, 'chat');
 		$(this).val('');
 	}
 });
