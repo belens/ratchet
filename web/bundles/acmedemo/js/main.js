@@ -173,9 +173,10 @@ add_response = function (text, channelType) {
 		case 'frontdesk':
 			target = '.subscribers-total';
 			console.log('hi');
+			console.log(obj);
 			if (obj.total != null) {
 				$(target).html(function (i, val) {
-					return obj.total;
+					return obj.total ;
 				});	
 			}else if (obj.subscriber != null){	
 				$('.subscribers').append('<li>' + obj.subscriber + '</li>');

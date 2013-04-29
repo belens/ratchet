@@ -37,6 +37,8 @@ class Pusher implements WampServerInterface {
         $this->log("onSubscribe");
         $this->log("session id {$conn->WAMP->sessionId}");
         $this->log("channel: $channel {$channel->count()}");
+
+
         
         
         // When a visitor subscribes to a channel link the Channel object in a lookup array
@@ -51,7 +53,7 @@ class Pusher implements WampServerInterface {
         if ($channelArr[0] == "frontdesk"){
             $payload = $channel->count();
             echo $payload;
-           $json = json_encode(array('channel'=>$channel,'message'=>$payload));
+           $json = json_encode(array('channel'=>$channel,'total'=>$payload));
            $channel->broadcast($json);            
         }
 

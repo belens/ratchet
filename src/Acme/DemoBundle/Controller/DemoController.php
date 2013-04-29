@@ -70,8 +70,7 @@ class DemoController extends Controller
                         $data = json_encode($data);
                         break;
                     case 'frontdesk':
-                        $numberRegex = '/^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/';
-                        if(preg_match($numberRegex,$payload)) {
+                        if(is_int($payload)) {
                             $data = array('channel'=>$this->channel,'total'=>$payload);
                         } else {
                             $data = array('channel'=>$this->channel,'subscriber'=>$payload);
