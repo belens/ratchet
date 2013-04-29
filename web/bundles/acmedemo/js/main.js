@@ -102,20 +102,25 @@ add_room = function (room) {
 	}
 	rooms.push(room);
 	$('select.rooms').append('<option>' + room + '</option>');
+	var messages = $('#chatMessages').val();
+	var obj = $.parseJSON(messages);
+	for (var j = 0; j < obj.length; j++){
+		target = '#chat';
+		$(target).val(function (i, val) {
+			//Messages is a collection of JSON messages, hence the double parse.
+			return val + $.parseJSON(obj[j]).message + "\n" ;
+	});	
+	}
 
-	var messages = $('#messages').val();
-
-
-
-	// var obj = $.parseJSON(messages);
-
-	// for (var j = 0; j < obj.length; j++){
-	// 	target = '#chat';
-	// 	$(target).val(function (i, val) {
-	// 		return obj[j].message + "\n" + val;
-	// 	});	
-		
-	// }
+	var dataMessages = $('#dataMessages').val();
+	//console.log(dataMessages);
+	var obj = $.parseJSON(dataMessages);
+	for (var j = 0; j < obj.length; j++){
+		target = '#response';
+		$(target).val(function (i, val) {
+			//Messages is a collection of JSON messages, hence the double parse.
+			return val + $.parseJSON(obj[j]).message + "\n" ;
+	});}
 	return channels;
 }
 remove_room = function (room) {
