@@ -89,11 +89,15 @@ class DemoController extends Controller
             return new Response("Need pub and channel", 400);  
         }
         //echo $this->channel;
-        $messages = $pr->get10LastMessagesFromChannel($this->channel);
+        $chatMessages = $pr->get10LastMessagesFromChannel('chat::'.$this->channel);
         //echo $messages;
-        $messagesJSON = json_encode($messages);
+        $chatMessagesJSON = json_encode($chatMessages);
         //echo $messagesJSON;
-        return array('channel'=>$this->channel, 'messages'=>$messagesJSON);
+        $dataMessages = $pr->get10LastMessagesFromChannel('data::'.$this->channel);
+        //echo $dataMessages;
+        $dataMessagesJSON = json_encode($dataMessages);
+        //echo $dataMessagesJSON;
+        return array('channel'=>$this->channel, 'chatMessages'=>$chatMessagesJSON, 'dataMessages'=>$dataMessagesJSON);
     }
 
 
