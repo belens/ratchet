@@ -33,7 +33,6 @@ class Pusher implements WampServerInterface {
     public function onClose(ConnectionInterface $conn) {
         $this->log("onClose ({$conn->WAMP->sessionId})");
     }
-
     public function onSubscribe(ConnectionInterface $conn, $channel) {
         $this->log("onSubscribe");
         $this->log("session id {$conn->WAMP->sessionId}");
@@ -45,18 +44,24 @@ class Pusher implements WampServerInterface {
             $this->subscribedChannels[$channel->getId()] = $channel;
             $pubsubContext = $this->redis->pubsub($channel->getId(), array($this, 'pubsub'));
             $this->log("subscribed to channel $channel");
-
-            if (array_key_exists('count', $this->subscribedChannels)) {
-                $channel = $this->subscribedChannels['count'];
-                $channel->broadcast($$channel->count());
-            }
         }
+
+        //update subscriber count on frontdesk channel
+        $channelArr =  explode("::", $channel);
+        if ($channelArr[0] == "frontdesk"){
+            $payload = $channel->count();
+            echo $payload;
+           $json = json_encode(array('channel'=>$channel,'message'=>$payload));
+           $channel->broadcast($json);            
+        }
+
     }
     
     public function onUnSubscribe(ConnectionInterface $conn, $channel) {
         $this->log("onUnSubscribe");
         $this->log("topic: $channel {$channel->count()}");
     }
+
     /**
      * @param string
      */
@@ -69,10 +74,11 @@ class Pusher implements WampServerInterface {
             $this->log("no subscribers, no broadcast");
             return;
         }
-
         $channel = $this->subscribedChannels[$event->channel];
+
+
         $this->log("$event->channel: $event->payload {$channel->count()}");
-        $channel->broadcast("$event->channel: $event->payload");
+        $channel->broadcast("$event->payload");
 
         // quit if we get the message from redis
         if (strtolower(trim($event->payload)) === 'quit') {
@@ -109,4 +115,13 @@ class Pusher implements WampServerInterface {
     public function onError(ConnectionInterface $conn, \Exception $e) {
         $this->log("onError");
     }
+}
+function strstr_after($haystack, $needle, $case_insensitive = false) {
+    $strpos = ($case_insensitive) ? 'stripos' : 'strpos';
+    $pos = $strpos($haystack, $needle);
+    if (is_int($pos)) {
+        return substr($haystack, $pos + strlen($needle));
+    }
+    // Most likely false or null
+    return $pos;
 }

@@ -57,17 +57,16 @@ class DemoController extends Controller
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
 
-                $result = substr($this->channel, 0, strpos($this->channel, ':'));
+                $result = substr($this->channel, 0, strpos($this->channel, '::'));
 
                 switch ($result) {
                     case 'chat':
-                        $data = $payload;
-                        break;
-                    case 'data':
-                        $data = array('message'=>$payload, 'song'=>'daft punk get lucky', 'image'=>'blabla.jpg');
+                        $data = array('channel'=>$this->channel, 'message'=>$payload);
                         $data = json_encode($data);
                         break;
-                    case 'room':
+                    case 'data':
+                        $data = array('channel'=>$this->channel,'message'=>$payload);
+                        $data = json_encode($data);
                         break;
                 }                
 

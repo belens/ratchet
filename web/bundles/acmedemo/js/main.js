@@ -7,8 +7,7 @@ var defaultRooms = ['getBetter'];
 var rooms = [];
 var channels = [];
 var debug = false;
-
-
+var username = '';
 // connect to WAMP server
 console.log(ab);
 ab.connect("ws://local.ratchet.com:8081",
@@ -31,18 +30,21 @@ ab.connect("ws://local.ratchet.com:8081",
 on_connect = function() {
 	// initialise default channels
 	console.log("ab: subscribing to default channels");
+	var channelTypes = ['data','chat','frontdesk'];
 
 	// if you go to /pubsub/banana, this will check if there's a default banana channel, if there is not, it is added to the dropdown and it becomes the current active channel.
 	var routeRoom = $('#routeChannel').val();
 	if( $.inArray(routeRoom, defaultRooms) == -1 && routeRoom != '' ){
-      	subscribe_to(routeRoom, 'data');
-      	subscribe_to(routeRoom, 'chat');
+		for (var i = 0; i < channelTypes.length; i++) {
+			subscribe_to(routeRoom, channelTypes[i]);
+		};
 		add_room(routeRoom);
    }
 
 	$.each(defaultRooms, function (i, room) {
-		subscribe_to(room, 'data');
-		subscribe_to(room, 'chat');
+		for (var i = 0; i < channelTypes.length; i++) {
+			subscribe_to(room, channelTypes[i]);
+		};
 		add_room(room);
 	});
 
@@ -53,14 +55,13 @@ on_connect = function() {
 }
 
 subscribe_to = function (room, channelType) {
-	var chan = channelType + ':' + room;
+	var chan = channelType + '::' + room;
 
 	if (!add_channels(chan)){
 		return false;
 	}
 
 	console.log(chan);
-
 	sess.subscribe(chan, function (channel, event) {
  		console.log("ab: channel: " + channel + " event: " + event);
  		add_response(event, channelType);
@@ -81,7 +82,7 @@ unsubscribe = function(channel) {
 
 publish_data = function(message) {
 	$.post($('#room-post').val(), {"pub": message, "channel":get_channel('data')}, function (data) {
-		console.log("pubsub: ajax response: " + data + "TEST");
+		console.log("pubsub: ajax response: " + data);
 	});
 }
 publish_chat = function(message) {
@@ -98,7 +99,9 @@ add_room = function (room) {
 	$('select.rooms').append('<option>' + room + '</option>');
 	return channels;
 }
-
+remove_room = function (room) {
+	$('select.rooms option').filter(function() { return $.text([this]) === room; }).remove();
+}
 add_channels = function (channel) {
 	if (channels.indexOf(channel) != -1) {
 		return false;
@@ -118,15 +121,13 @@ remove_channel = function (channel) {
 	
 	return channels;
 }
-remove_room = function (room) {
-	$('select.rooms option').filter(function() { return $.text([this]) === room; }).remove();
-}
+
 get_room = function () {
 	return $('select.rooms').val();
 }
 
 get_channel = function (channelType) {
-	return channelType + ':' + $('select.rooms').val();
+	return channelType + '::' + $('select.rooms').val();
 }
 
 notify = function (message, type) {
@@ -136,22 +137,38 @@ notify = function (message, type) {
 }
 
 add_response = function (text, channelType) {
+
+	var obj = $.parseJSON(text);
+	text = obj.message;
+	console.log(text);
 	var target = '';
+	//text = text.split(text, ': ')[1];
 	switch (channelType) {
 		case 'data': 
 			target = '#response';
+			$(target).val(function (i, val) {
+				return text + "\n" + val;
+			});				
 			break;
 		case 'chat':
 			target = '#chat';
+			$(target).val(function (i, val) {
+				return text + "\n" + val;
+			});			
 			break;
+		case 'frontdesk':
+			target = '.subscribers';
+			console.log('hi');
+			$(target).html(function (i, val) {
+				return text;
+			});				
+			break;			
 		default:
 			target = '#response'
 			break;
 	}
 
-	$(target).val(function (i, val) {
-		return text + "\n" + val;
-	});
+
 }
 
 
@@ -181,7 +198,7 @@ $('#pub').keypress(function (e) {
 });
 $('#talk').keypress(function (e) {
 	if (e.which == KEY_RETURN) {
-		publish_chat(this.value);
+		publish_chat($('#username').val() + ': ' + this.value);
 		$(this).val('');
 	}
 });
