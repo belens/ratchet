@@ -146,7 +146,7 @@ $('#redispub').keypress(function (e) {
 });
 $('#talk').keypress(function (e) {
 	if (e.which == KEY_RETURN) {
-		redis_publish_chat(this.value);
+		redis_publish_chat('this.value');
 		$(this).val('');
 	}
 });
