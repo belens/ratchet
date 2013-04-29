@@ -35,6 +35,8 @@ on_connect = function() {
 
 	// if you go to /pubsub/banana, this will check if there's a default banana channel, if there is not, it is added to the dropdown and it becomes the current active channel.
 	var routeRoom = $('#routeChannel').val();
+	
+	
 	if( $.inArray(routeRoom, defaultRooms) == -1 && routeRoom != '' ){
 		for (var i = 0; i < channelTypes.length; i++) {
 			subscribe_to(routeRoom, channelTypes[i]);
@@ -62,6 +64,19 @@ subscribe_to = function (room, channelType) {
 	if (!add_channels(chan)){
 		return false;
 	}
+	var messages = $('#messages').val();
+	var obj = $.parseJSON(messages);
+	target = '#chat';
+		$(target).val(function (i, val) {
+			return obj + "\n" + val;
+		});	
+	/*for (var j = 0; j < obj.length; j++){
+		target = '#chat';
+		$(target).val(function (i, val) {
+			return j + "\n" + val;
+		});	
+		
+	}*/
 
 	console.log(chan);
 	sess.subscribe(chan, function (channel, event) {

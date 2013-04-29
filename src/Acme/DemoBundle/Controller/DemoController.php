@@ -45,10 +45,11 @@ class DemoController extends Controller
          * Redis pubsub
          */
         $request = $this->get('request');
-
+        $this->channel = 'getBetter';
         if ($request->request->get('channel')){
             $this->channel = $request->request->get('channel');
         }
+
 
         $pr = new PredisHelper();
 
@@ -87,13 +88,11 @@ class DemoController extends Controller
             
             return new Response("Need pub and channel", 400);  
         }
-
         echo $this->channel;
         $messages = $pr->get10LastMessagesFromChannel($this->channel);
+        $messagesJSON = json_encode($messages);
 
-        echo count($messages);
-
-        return array('channel'=>$this->channel, 'messages'=>$messages);
+        return array('channel'=>$this->channel, 'messages'=>$messagesJSON);
     }
 
 
