@@ -45,18 +45,17 @@ class DemoController extends Controller
          * Redis pubsub
          */
         $request = $this->get('request');
+
         $this->channel = 'getBetter';
         if ($request->request->get('channel')){
             $this->channel = $request->request->get('channel');
         }
-
 
         $pr = new PredisHelper();
 
         if ($request->isMethod('POST')) {
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
-
                 $result = substr($this->channel, 0, strpos($this->channel, '::'));
 
                 switch ($result) {
@@ -84,36 +83,37 @@ class DemoController extends Controller
                 return new Response(sprintf('Published %s to %s', $payload, $this->channel));
             }
             if ($request->request->get('del')) {
-                print_r('delete');
                 $payload = $request->request->get('del');
 
-                $result = substr($this->channel, 0, strpos($this->channel, '::'));
+                /*$result = substr($this->channel, 0, strpos($this->channel, '::'));
 
                 switch ($result) {
                     case 'frontdesk':
                         if(is_int($payload)) {
                             $data = array('channel'=>$this->channel,'total'=>$payload);
-                        } else {
+                        } else {*/
                             $data = array('channel'=>$this->channel,'subscriber'=>$payload);
-                        }                
-                        $data = json_encode($data);
+                        /*}                
+                        */$data = json_encode($data);/*
                         break;
-                }                
+                }          */      
 
                 //$pr->publish($this->channel, $data);
-
-                                print_r('banaan');
                 $pr->del($this->channel,$data);
 
                 $list = $pr->getAllMessagesFromChannel($this->channel);
 
-                $pr->publish($this->channel, $list);
+                var_dump(json_encode($list));
+
+                $pr->publish($this->channel, json_encode($list));
 
                 return new Response(sprintf('Deleted %s to %s', $payload, $this->channel));
             }            
             
             return new Response("Need pub and channel", 400);  
         }
+        $currentUsers = $pr->getAllMessagesFromChannel('frontdesk::'.$this->channel);
+        echo json_encode($currentUsers);
         //echo $this->channel;
         $chatMessages = $pr->get10LastMessagesFromChannel('chat::'.$this->channel);
         //echo $messages;
