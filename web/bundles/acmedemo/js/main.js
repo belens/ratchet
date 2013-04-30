@@ -92,6 +92,13 @@ publish = function(message,channelType) {
 	});
 }
 
+publish_leave_room = function(message,channelType) {
+	alert('hi');
+	$.post($('#room-post').val(), {"del": message, "channel":get_channel(channelType)}, function (data) {
+		console.log("del: ajax response: " + data);
+	});
+}
+
 get_room = function () {
 	return $('select.rooms').val();
 }
@@ -161,6 +168,7 @@ notify = function (message, type) {
 add_response = function (text, channelType) {
 
 	var obj = $.parseJSON(text);
+	console.log(obj);
 	var target = '';
 	switch (channelType) {
 		case 'data': 
@@ -177,7 +185,7 @@ add_response = function (text, channelType) {
 			break;
 		case 'frontdesk':
 			target = '.subscribers-total';
-			console.log('hi');
+			//console.log('hi');
 			console.log(obj);
 			if (obj.total != null) {
 				$(target).html(function (i, val) {
@@ -194,7 +202,13 @@ add_response = function (text, channelType) {
 
 
 }
-
+//when the subscriber leaves room, unsubscribe
+$(window).unload(function() {
+	alert('sdf');
+	$.post($('#room-post').val(), {"del": 'Sander', "channel":get_channel('frontdesk')}, function (data) {
+		console.log("del: ajax response: " + data);
+	});
+});
 
 // subscribe to a channel
 $('#sub').keypress(function (e) {

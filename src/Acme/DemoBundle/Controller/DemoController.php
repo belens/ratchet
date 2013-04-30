@@ -84,6 +84,30 @@ class DemoController extends Controller
 
                 return new Response(sprintf('Published %s to %s', $payload, $this->channel));
             }
+            if ($request->request->get('del')) {
+                $payload = $request->request->get('del');
+
+                $result = substr($this->channel, 0, strpos($this->channel, '::'));
+
+                switch ($result) {
+                    case 'frontdesk':
+                        if(is_int($payload)) {
+                            $data = array('channel'=>$this->channel,'total'=>$payload);
+                        } else {
+                            $data = array('channel'=>$this->channel,'subscriber'=>$payload);
+                        }                
+                        $data = json_encode($data);
+                        break;
+                }                
+
+                //$pr->publish($this->channel, $data);
+                $pr->del($this->channel,$data);
+                print_r($data);
+                $msg = $pr->getAllMessagesFromChannel('frontdesk::'.$this->channel);
+                $pr->publish($this->channel, $this->msg);
+
+                return new Response(sprintf('Published %s to %s', $payload, $this->channel));
+            }            
             
             return new Response("Need pub and channel", 400);  
         }
