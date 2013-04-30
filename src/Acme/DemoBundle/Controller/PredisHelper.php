@@ -28,7 +28,6 @@ class PredisHelper {
 	}
 
 	public function get10LastMessagesFromChannel($channel){
-		$channel = $channel;
 		$messages = $this->redis->lrange($channel,0,9);
 		return $messages;
 	}

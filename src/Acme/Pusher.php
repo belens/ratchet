@@ -118,6 +118,7 @@ class Pusher implements WampServerInterface {
         $this->log("onError");
     }
 }
+
 function strstr_after($haystack, $needle, $case_insensitive = false) {
     $strpos = ($case_insensitive) ? 'stripos' : 'strpos';
     $pos = $strpos($haystack, $needle);

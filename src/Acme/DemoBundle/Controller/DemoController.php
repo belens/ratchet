@@ -54,7 +54,6 @@ class DemoController extends Controller
         $pr = new PredisHelper();
 
         if ($request->isMethod('POST')) {
-
             if ($request->request->get('pub')) {
                 $payload = $request->request->get('pub');
 
@@ -85,6 +84,7 @@ class DemoController extends Controller
                 return new Response(sprintf('Published %s to %s', $payload, $this->channel));
             }
             if ($request->request->get('del')) {
+                print_r('delete');
                 $payload = $request->request->get('del');
 
                 $result = substr($this->channel, 0, strpos($this->channel, '::'));
@@ -101,12 +101,15 @@ class DemoController extends Controller
                 }                
 
                 //$pr->publish($this->channel, $data);
-                $pr->del($this->channel,$data);
-                print_r($data);
-                $msg = $pr->getAllMessagesFromChannel('frontdesk::'.$this->channel);
-                $pr->publish($this->channel, $this->msg);
 
-                return new Response(sprintf('Published %s to %s', $payload, $this->channel));
+                                print_r('banaan');
+                $pr->del($this->channel,$data);
+
+                $list = $pr->getAllMessagesFromChannel($this->channel);
+
+                $pr->publish($this->channel, $list);
+
+                return new Response(sprintf('Deleted %s to %s', $payload, $this->channel));
             }            
             
             return new Response("Need pub and channel", 400);  

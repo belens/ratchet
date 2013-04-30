@@ -166,7 +166,7 @@ notify = function (message, type) {
 }
 
 add_response = function (text, channelType) {
-
+	console.log('OMG YOUR PUBLISHING SOMETHING THIS IS AMAZING ');
 	var obj = $.parseJSON(text);
 	console.log(obj);
 	var target = '';
@@ -185,7 +185,7 @@ add_response = function (text, channelType) {
 			break;
 		case 'frontdesk':
 			target = '.subscribers-total';
-			//console.log('hi');
+			console.log('hi');
 			console.log(obj);
 			if (obj.total != null) {
 				$(target).html(function (i, val) {
@@ -211,12 +211,14 @@ $(window).on('beforeunload', function(e) {
 	var username = $('#username').val();
 	var data = {"del": username, "channel":get_channel('frontdesk')};
 	$.ajax({
-    type: 'POST',
-    async: false,
-    url: $('#room-post'),
-    data: data,
-    dataType: 'json'
-});
+		type: 'POST',
+		async: false,
+		url: $('#room-post').val(),
+		data: data,
+		dataType: 'json'
+	});
+
+
 });
 
 // subscribe to a channel
@@ -230,12 +232,20 @@ $('#sub').keypress(function (e) {
 
 // unsubscribe to channel
 $('#unsub').click(function () {
+
+	var username = $('#username').val();
+	$.post($('#room-post').val(), {"pub": username, "channel":get_channel('frontdesk')}, function (data) {
+		console.log("pubsub: ajax response: " + data);
+	});
+
 	$.each(defaultRooms, function (i, room) {
 		for (var i = 0; i < channelTypes.length; i++) {
 			unsubscribe(get_channel(channelTypes[i]));
 		};
 		remove_room(get_room());
 	});	
+
+
 	
 });
 
