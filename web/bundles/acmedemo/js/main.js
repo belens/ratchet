@@ -203,11 +203,20 @@ add_response = function (text, channelType) {
 
 }
 //when the subscriber leaves room, unsubscribe
-$(window).unload(function() {
-	alert('sdf');
-	$.post($('#room-post').val(), {"del": 'Sander', "channel":get_channel('frontdesk')}, function (data) {
-		console.log("del: ajax response: " + data);
-	});
+$(window).on('beforeunload', function(e) {
+	//alert('dsqf');
+	/*$.post($('#room-post').val(), {"del": 'Sander', "channel":get_channel('frontdesk')}, function (data) {
+		return("del: ajax response: " + data);
+	});*/
+	var username = $('#username').val();
+	var data = {"del": username, "channel":get_channel('frontdesk')};
+	$.ajax({
+    type: 'POST',
+    async: false,
+    url: $('#room-post'),
+    data: data,
+    dataType: 'json'
+});
 });
 
 // subscribe to a channel
