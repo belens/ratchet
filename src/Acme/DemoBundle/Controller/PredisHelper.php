@@ -18,6 +18,7 @@ class PredisHelper {
 	public function push($channel,$payload){
 		$this->redis->lpush($channel, $payload);
 	}
+	
 	public function del($channel,$payload){
 		$this->redis->lrem($channel, -1,$payload);
 	}

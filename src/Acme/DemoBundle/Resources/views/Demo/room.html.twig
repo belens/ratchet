@@ -16,12 +16,13 @@
 <input type="hidden" id="routeChannel" value="{{channel}}">
 <input type="hidden" id="chatMessages" value="{{chatMessages}}">
 <input type="hidden" id="dataMessages" value="{{dataMessages}}">
+<input type="hidden" id="currentUsers" value="{{currentUsers}}">
 <div class="container">
 	<div class="row">
 		<div class="span12">
 			<span class="input-block-level" id="notify"></span>
 			<span class="input-block-level">
-			<strong>username: </strong><input type="text" class="input input-large" name="username" id="username" value="Sander">
+			<strong>username: </strong><input type="text" class="input input-large" name="username" id="username" value="{{ random() }}">
 			</span>
 			<span class="input-block-level">
 			<strong>Available rooms: </strong><ul class="room-list unstyled inline"></ul>
@@ -75,7 +76,9 @@
 				<div class="controls">
 					<input type="text" name="talk" id="talk" class="input-block-level input">
 					<p>in the room: <span class="subscribers-total">-</span></p>
-					<span>In this room:<ul class="subscribers unstyled inline" style="font-weight: bold; display: inline-block;" ></ul>
+					<span>In this room:<ul class="subscribers unstyled inline" style="font-weight: bold; display: inline-block;" > {% for user in currentUsers %}
+                		<li id="{{user}}">{{user}}</li>
+            		{% endfor %} </ul>
 					</span>
 				</div>
 			</div>

@@ -183,17 +183,38 @@ add_response = function (text, channelType) {
 			break;
 		case 'frontdesk':
 			target = '.subscribers-total';
-			console.log(obj);
-			if (obj.total != null) {
-				$(target).html(function (i, val) {
-					return obj.total ;
-				});	
-			}else if (obj.subscriber != null){	
-				$('.subscribers').append('<li>' + obj.subscriber + '</li>');
-			}			
+			//console.log(obj.total);
+			if (Object.prototype.toString.call( obj ) === '[object Array]' ){
+				console.log(obj);
+				console.log(obj.length);
+				console.log("DELETEEEE");
+				$('.subscribers').empty();
+				for (var i = 0; i < obj.length; i++) {
+					var user = $.parseJSON(obj[i]);
+					$('.subscribers').append('<li id="'+ user.subscriber +'">'+ user.subscriber + '</li>');
+				};
+				console.log("changing amount of users");
+				if (obj.length >0) {
+					$(target).html(function (i, val) {
+						return (obj.length);
+					});	
+					console.log("new total:" + (obj.length));
+				}
+				console.log("amount of users changed");
+			}
+			else {
+				if (obj.total != null) {
+					$(target).html(function (i, val) {
+						return obj.total ;
+					});	
+				}
+				else if (obj.subscriber != null){	
+					$('.subscribers').append('<li id="'+ obj.subscriber +'">'+ obj.subscriber + '</li>');
+				}	
+			}		
 			break;			
 		default:
-			target = '#response'
+			target = '#response';
 			break;
 	}
 

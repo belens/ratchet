@@ -16,6 +16,11 @@ class DemoController extends Controller
 {
     private $pr;
     private $channel;
+    private $currentUsers;
+    private $chatMessages;
+    private $chatMessagesJSON;
+    private $dataMessages;
+    private $dataMessagesJSON;
 
     /**
      * @Route("/", name="_demo")
@@ -100,7 +105,9 @@ class DemoController extends Controller
 
                 //$pr->publish($this->channel, $data);
                 $pr->del($this->channel,$data);
-
+                /*$list = array();
+                $list[] = "DELETE";
+                $list = array_merge($list, $pr->getAllMessagesFromChannel($this->channel));*/
                 $list = $pr->getAllMessagesFromChannel($this->channel);
 
                 var_dump(json_encode($list));
@@ -112,8 +119,15 @@ class DemoController extends Controller
             
             return new Response("Need pub and channel", 400);  
         }
-        $currentUsers = $pr->getAllMessagesFromChannel('frontdesk::'.$this->channel);
-        echo json_encode($currentUsers);
+        $currentUsersJSONArray = $pr->getAllMessagesFromChannel('frontdesk::'.$this->channel);
+       // echo $currentUsers;
+        /*if (count($currentUsersArray) > 0){
+            var_dump(json_decode($currentUsersArray[0])->subscriber);
+        }*/
+        $currentUsers = array();
+        foreach($currentUsersJSONArray as $currentUser){
+            $currentUsers[] = json_decode($currentUser)->subscriber;
+        }     
         //echo $this->channel;
         $chatMessages = $pr->get10LastMessagesFromChannel('chat::'.$this->channel);
         //echo $messages;
@@ -123,7 +137,7 @@ class DemoController extends Controller
         //echo $dataMessages;
         $dataMessagesJSON = json_encode($dataMessages);
         //echo $dataMessagesJSON;
-        return array('channel'=>$this->channel, 'chatMessages'=>$chatMessagesJSON, 'dataMessages'=>$dataMessagesJSON);
+        return array('channel'=>$this->channel, 'chatMessages'=>$chatMessagesJSON, 'dataMessages'=>$dataMessagesJSON, 'currentUsers'=>$currentUsers);
     }
 
 
@@ -135,6 +149,6 @@ class DemoController extends Controller
     {
         $this->channel = $channel;
         $this->roomAction();
-        return array('channel' => $channel);
+        return array('channel'=>$this->channel, 'chatMessages'=>$chatMessagesJSON, 'dataMessages'=>$dataMessagesJSON, 'currentUsers'=>$currentUsers);
     }
 }
