@@ -184,7 +184,8 @@ add_response = function (text, channelType) {
 		case 'frontdesk':
 			target = '.subscribers-total';
 			//console.log(obj.total);
-			if (Object.prototype.toString.call( obj ) === '[object Array]' ){
+			//Chec
+			if ($.isArray(obj)){
 				console.log(obj);
 				console.log(obj.length);
 				console.log("DELETEEEE");
