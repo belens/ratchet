@@ -184,17 +184,20 @@ add_response = function (text, channelType) {
 		case 'frontdesk':
 			target = '.subscribers-total';
 			//console.log(obj.total);
-			//Chec
+			//Check if obj is an array
 			if ($.isArray(obj)){
 				console.log(obj);
-				console.log(obj.length);
-				console.log("DELETEEEE");
+				/*console.log(obj.length);
+				console.log("DELETEEEE");*/
+				//empty the current list of users
 				$('.subscribers').empty();
+				//fill the list with users that are currently connected
 				for (var i = 0; i < obj.length; i++) {
 					var user = $.parseJSON(obj[i]);
-					$('.subscribers').append('<li id="'+ user.subscriber +'">'+ user.subscriber + '</li>');
+					$('.subscribers').append('<li>'+ user.subscriber + '</li>');
 				};
 				console.log("changing amount of users");
+				//change amount of users counter on the webpage
 				if (obj.length >0) {
 					$(target).html(function (i, val) {
 						return (obj.length);
@@ -210,7 +213,7 @@ add_response = function (text, channelType) {
 					});	
 				}
 				else if (obj.subscriber != null){	
-					$('.subscribers').append('<li id="'+ obj.subscriber +'">'+ obj.subscriber + '</li>');
+					$('.subscribers').append('<li>'+ obj.subscriber + '</li>');
 				}	
 			}		
 			break;			
